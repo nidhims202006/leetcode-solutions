@@ -1,36 +1,28 @@
 class Solution:
 
-  def findMedianSortedArrays(
-      self, nums1: list[int], nums2: list[int]
-  ) -> float:
-    # Ensure nums1 is the smaller array to minimize binary search range
-    if len(nums1) > len(nums2):
-      nums1, nums2 = nums2, nums1
+  def longestPalindrome(self, s: str) -> str:
+    if not s:
+      return ""
 
-    m, n = len(nums1), len(nums2)
-    low, high = 0, m
-    half_len = (m + n + 1) // 2
+    start, max_len = 0, 0
 
-    while low <= high:
-      i = (low + high) // 2
-      j = half_len - i
+    def expandAroundCenter(left: int, right: int) -> int:
+      while left >= 0 and right < len(s) and s[left] == s[right]:
+        left -= 1
+        right += 1
+      # Length of palindrome found
+      return right - left - 1
 
-      # Boundary values for partition
-      max_left1 = float('-inf') if i == 0 else nums1[i - 1]
-      min_right1 = float('inf') if i == m else nums1[i]
+    for i in range(len(s)):
+      # Odd length palindromes (single character center)
+      len1 = expandAroundCenter(i, i)
+      # Even length palindromes (two character center)
+      len2 = expandAroundCenter(i, i + 1)
 
-      max_left2 = float('-inf') if j == 0 else nums2[j - 1]
-      min_right2 = float('inf') if j == n else nums2[j]
+      length = max(len1, len2)
+      if length > max_len:
+        max_len = length
+        # Calculate start index based on max length found
+        start = i - (length - 1) // 2
 
-      # Check if partition is correct
-      if max_left1 <= min_right2 and max_left2 <= min_right1:
-        if (m + n) % 2 == 1:
-          return float(max(max_left1, max_left2))
-        else:
-          return (
-              max(max_left1, max_left2) + min(min_right1, min_right2)
-          ) / 2.0
-      elif max_left1 > min_right2:
-        high = i - 1  # Move left in nums1
-      else:
-        low = i + 1  # Move right in nums1
+    return s[start : start + max_len]
